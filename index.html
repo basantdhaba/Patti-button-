@@ -98,7 +98,10 @@
                 let sortedNumbers = [...selectedNumbers].sort((a, b) => a - b);
                 
                 if (JSON.stringify(selectedNumbers) === JSON.stringify(sortedNumbers)) {
-                    storedPattis.push(selectedNumbers.join(""));
+                    // Remove the last digit of the Patti number (i.e., if 9810, store 980)
+                    let patti = selectedNumbers.join("");
+                    let pattiToStore = patti.length === 4 ? patti.slice(0, 3) : patti;
+                    storedPattis.push(pattiToStore);
                     updateStoreArea();
                 } else {
                     alert("Invalid Patti! Numbers should be in ascending order.");
