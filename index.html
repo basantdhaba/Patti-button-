@@ -17,14 +17,21 @@
             text-align: center;
             line-height: 50px;
             margin: 5px;
+            cursor: pointer;
         }
-        #cpReturn {
+        #cpButton {
             display: none; /* Hidden initially */
             margin-top: 10px;
             padding: 10px;
             background-color: lightgray;
             border: 1px solid black;
             cursor: pointer;
+            text-align: center;
+        }
+        #storeArea {
+            display: none;
+            margin-top: 10px;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -32,29 +39,59 @@
 
     <h2>Click the Patti Button to See Boxes</h2>
     <button id="pattiButton" onclick="showBoxes()">Patti</button>
+    
     <div id="boxContainer"></div>
-    <div id="cpReturn" onclick="hideBoxes()">CP Return</div>
+    
+    <div id="cpButton" onclick="resetSelection()">CP</div>
+    <div id="storeArea">Stored Numbers: </div>
 
     <script>
+        let selectedNumbers = [];
+        let storedNumbers = [];
+
         function showBoxes() {
-            var boxContainer = document.getElementById("boxContainer");
-            var cpReturn = document.getElementById("cpReturn");
-            
+            let boxContainer = document.getElementById("boxContainer");
+            let cpButton = document.getElementById("cpButton");
+
             boxContainer.innerHTML = ""; // Clear previous boxes
-            for (var i = 1; i <= 10; i++) {
-                var box = document.createElement("div");
+            for (let i = 1; i <= 10; i++) {
+                let box = document.createElement("div");
                 box.className = "box";
-                box.textContent = i; // Box numbers 1-10
+                box.textContent = i;
+                box.onclick = function() { selectNumber(i); };
                 boxContainer.appendChild(box);
             }
 
-            boxContainer.style.display = "block"; // Show boxes
-            cpReturn.style.display = "block"; // Show CP Return button
+            boxContainer.style.display = "block";
+            cpButton.style.display = "block";
+            document.getElementById("storeArea").style.display = "block";
         }
 
-        function hideBoxes() {
-            document.getElementById("boxContainer").style.display = "none"; // Hide boxes
-            document.getElementById("cpReturn").style.display = "none"; // Hide CP Return button
+        function selectNumber(num) {
+            if (selectedNumbers.length < 3) {
+                selectedNumbers.push(num);
+            }
+
+            if (selectedNumbers.length === 3) {
+                let sortedNumbers = [...selectedNumbers].sort((a, b) => a - b);
+                
+                if (JSON.stringify(selectedNumbers) === JSON.stringify(sortedNumbers)) {
+                    storedNumbers.push(selectedNumbers.join(""));
+                    updateStoreArea();
+                } else {
+                    alert("Invalid selection! Numbers should be in ascending order.");
+                }
+                
+                selectedNumbers = []; // Reset selection after 3 clicks
+            }
+        }
+
+        function updateStoreArea() {
+            document.getElementById("storeArea").textContent = "Stored Numbers: " + storedNumbers.join(", ");
+        }
+
+        function resetSelection() {
+            selectedNumbers = [];
         }
     </script>
 
