@@ -3,23 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Button Action</title>
+    <title>Patti Button Action</title>
+    <style>
+        #boxContainer {
+            display: none; /* Hidden initially */
+            margin-top: 10px;
+        }
+        .box {
+            width: 50px;
+            height: 50px;
+            display: inline-block;
+            border: 1px solid black;
+            text-align: center;
+            line-height: 50px;
+            margin: 5px;
+        }
+        #cpReturn {
+            display: none; /* Hidden initially */
+            margin-top: 10px;
+            padding: 10px;
+            background-color: lightgray;
+            border: 1px solid black;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 
-    <h2>Click the Patti Button to See Changes</h2>
-    <button id="pattiButton" onclick="buttonClicked()">Patti</button>
-    <div id="result"></div>
+    <h2>Click the Patti Button to See Boxes</h2>
+    <button id="pattiButton" onclick="showBoxes()">Patti</button>
+    <div id="boxContainer"></div>
+    <div id="cpReturn" onclick="hideBoxes()">CP Return</div>
 
     <script>
-        function buttonClicked() {
-            var button = document.getElementById("pattiButton");
-            button.textContent = "Clicked!";  // Change button text
-            alert("Patti Button Clicked! Performing actions..."); // Show alert
+        function showBoxes() {
+            var boxContainer = document.getElementById("boxContainer");
+            var cpReturn = document.getElementById("cpReturn");
             
-            var newPara = document.createElement("p"); // Create a new paragraph
-            newPara.textContent = "New paragraph added below the button.";
-            document.getElementById("result").appendChild(newPara);
+            boxContainer.innerHTML = ""; // Clear previous boxes
+            for (var i = 1; i <= 10; i++) {
+                var box = document.createElement("div");
+                box.className = "box";
+                box.textContent = i; // Box numbers 1-10
+                boxContainer.appendChild(box);
+            }
+
+            boxContainer.style.display = "block"; // Show boxes
+            cpReturn.style.display = "block"; // Show CP Return button
+        }
+
+        function hideBoxes() {
+            document.getElementById("boxContainer").style.display = "none"; // Hide boxes
+            document.getElementById("cpReturn").style.display = "none"; // Hide CP Return button
         }
     </script>
 
