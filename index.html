@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patti Selection</title>
     <style>
-        #boxContainer, #cpButton, #amountSection, #submitButton, #clearButton {
+        #boxContainer, #cpButton, #amountSection, #submitButton, #clearButton, #cpOkButton {
             display: none; /* Hidden initially */
             margin-top: 10px;
         }
@@ -44,7 +44,7 @@
         #amountInput {
             width: 60px;
         }
-        #submitButton, #clearButton {
+        #submitButton, #clearButton, #cpOkButton {
             padding: 10px;
             background-color: lightgray;
             border: 1px solid black;
@@ -62,6 +62,8 @@
     <div id="boxContainer"></div>
     
     <div id="cpButton" onclick="toggleCP()">CP</div>
+    <div id="cpOkButton" onclick="processCP()">CP OK</div>
+
     <div id="storeArea">Stored Pattis: </div>
 
     <div id="amountSection">
@@ -80,6 +82,7 @@
         function showBoxes() {
             let boxContainer = document.getElementById("boxContainer");
             let cpButton = document.getElementById("cpButton");
+            let cpOkButton = document.getElementById("cpOkButton");
             let amountSection = document.getElementById("amountSection");
             let submitButton = document.getElementById("submitButton");
             let clearButton = document.getElementById("clearButton");
@@ -102,6 +105,7 @@
 
             boxContainer.style.display = "block";
             cpButton.style.display = "block";
+            cpOkButton.style.display = "block";  // Show CP OK button
             document.getElementById("storeArea").style.display = "block";
             amountSection.style.display = "block";
             submitButton.style.display = "block";
@@ -109,29 +113,14 @@
         }
 
         function selectNumber(num) {
-            if (selectedNumbers.length < 3) {
+            if (isCPSelected && selectedNumbers.length < 8) {
                 selectedNumbers.push(num);
-            }
-
-            if (selectedNumbers.length === 3) {
-                let sortedNumbers = [...selectedNumbers].sort((a, b) => a - b);
-                
-                if (JSON.stringify(selectedNumbers) === JSON.stringify(sortedNumbers)) {
-                    // If '10' is selected, treat it as '0' when storing
-                    let patti = selectedNumbers.join("");
-                    let pattiToStore = patti.replace("10", "0");  // Replace '10' with '0' for storage
-                    storedPattis.push(pattiToStore);
-                    updateStoreArea();
-                } else {
-                    alert("Invalid Patti! Numbers should be in ascending order.");
-                }
-                
-                selectedNumbers = []; // Reset selection after 3 clicks
+                updateStoreArea();  // Update store area with selected numbers
             }
         }
 
         function updateStoreArea() {
-            document.getElementById("storeArea").textContent = "Stored Pattis: " + storedPattis.join(", ");
+            document.getElementById("storeArea").textContent = "Stored Pattis: " + selectedNumbers.join(" ");
         }
 
         function toggleCP() {
@@ -144,6 +133,36 @@
             } else {
                 cpButton.classList.remove("selected");
             }
+        }
+
+        function processCP() {
+            if (selectedNumbers.length >= 4) {
+                let sortedNumbers = [...selectedNumbers].sort((a, b) => a - b);
+                let combinations = generateCombinations(sortedNumbers);
+                storedPattis = storedPattis.concat(combinations);
+                updateStoreArea();
+                alert("Combinations stored successfully!");
+            } else {
+                alert("Please select at least 4 numbers!");
+            }
+        }
+
+        function generateCombinations(arr) {
+            let combinations = [];
+            let n = arr.length;
+
+            // Generate combinations of 4 or more numbers
+            for (let i = 0; i < n; i++) {
+                for (let j = i + 1; j < n; j++) {
+                    for (let k = j + 1; k < n; k++) {
+                        for (let l = k + 1; l < n; l++) {
+                            combinations.push([arr[i], arr[j], arr[k], arr[l]].join(''));
+                        }
+                    }
+                }
+            }
+
+            return combinations;
         }
 
         function calculateTotal() {
