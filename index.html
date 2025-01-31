@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patti Selection</title>
+    <title>CP Patti Selection</title>
     <style>
-        #boxContainer, #cpButton, #amountSection, #submitButton, #clearButton {
+        #boxContainer, #cpButton, #cpPattiArea, #okayButton {
             display: none; /* Hidden initially */
             margin-top: 10px;
         }
@@ -18,12 +18,12 @@
             line-height: 50px;
             margin: 5px;
             cursor: pointer;
-            font-weight: bold; /* Bold for better visibility */
-            background-color: #f0f0f0; /* Solid box construction */
-            user-select: none; /* Prevent text selection for better UX */
+            font-weight: bold;
+            background-color: #f0f0f0;
+            user-select: none; /* Prevent text selection */
         }
         .box:hover {
-            background-color: #e0e0e0; /* Highlight on hover */
+            background-color: #e0e0e0;
         }
         #cpButton {
             padding: 10px;
@@ -34,18 +34,15 @@
             margin-top: 10px;
         }
         #cpButton.selected {
-            background-color: #4CAF50; /* Green when selected */
+            background-color: #4CAF50;
             color: white;
         }
-        #storeArea {
+        #cpPattiArea {
             display: none;
             margin-top: 10px;
             font-weight: bold;
         }
-        #amountInput {
-            width: 60px;
-        }
-        #submitButton, #clearButton {
+        #okayButton {
             padding: 10px;
             background-color: lightgray;
             border: 1px solid black;
@@ -63,78 +60,45 @@
     <div id="boxContainer"></div>
     
     <div id="cpButton" onclick="toggleCP()">CP</div>
-    <div id="storeArea">Stored Pattis: </div>
 
-    <div id="amountSection">
-        <label>Enter Amount per Patti (₹): </label>
-        <input type="number" id="amountInput" min="1" value="0" />
+    <div id="cpPattiArea">
+        <div>Selected Patti Numbers: <span id="pattiNumbers"></span></div>
+        <div id="pattiCombinations"></div>
     </div>
 
-    <div id="submitButton" onclick="calculateTotal()">Submit</div>
-    <div id="clearButton" onclick="clearLastPatti()">Clear Last Patti</div>
+    <div id="okayButton" onclick="calculateCombinations()">Okay</div>
 
     <script>
         let selectedNumbers = [];
-        let storedPattis = [];
-        let isCPSelected = false;  // Track CP button selection
+        let isCPSelected = false;
 
         function showBoxes() {
             let boxContainer = document.getElementById("boxContainer");
-            let cpButton = document.getElementById("cpButton");
-            let amountSection = document.getElementById("amountSection");
-            let submitButton = document.getElementById("submitButton");
-            let clearButton = document.getElementById("clearButton");
-
             boxContainer.innerHTML = ""; // Clear previous boxes
             for (let i = 1; i <= 9; i++) {
                 let box = document.createElement("div");
                 box.className = "box";
                 box.textContent = i;  // Show numbers 1 to 9
-                box.onclick = function() { selectNumber(i); }; // Internal number 1 to 9
+                box.onclick = function() { selectNumber(i); };
                 boxContainer.appendChild(box);
             }
 
-            // Create the 10th box as '0', but treat it as '10' for internal logic, but show '0'
+            // Create the 10th box as '0', but treat it as '10' for internal logic
             let boxZero = document.createElement("div");
             boxZero.className = "box";
             boxZero.textContent = "0";  // Show 0, treat as 10 internally
-            boxZero.onclick = function() { selectNumber(10); }; // Treat 0 as 10 internally
+            boxZero.onclick = function() { selectNumber(10); };
             boxContainer.appendChild(boxZero);
 
             boxContainer.style.display = "block";
-            cpButton.style.display = "block";
-            document.getElementById("storeArea").style.display = "block";
-            amountSection.style.display = "block";
-            submitButton.style.display = "block";
-            clearButton.style.display = "block";
+            document.getElementById("cpButton").style.display = "block";
         }
 
         function selectNumber(num) {
-            if (selectedNumbers.length < 3) {
+            if (isCPSelected && selectedNumbers.length < 8) {  // Limit to 8 digits max
                 selectedNumbers.push(num);
+                document.getElementById("pattiNumbers").textContent = selectedNumbers.join(", ");
             }
-
-            if (selectedNumbers.length === 3) {
-                let sortedNumbers = [...selectedNumbers].sort((a, b) => a - b);
-                
-                // Store the numbers in ascending order
-                if (JSON.stringify(selectedNumbers) !== JSON.stringify(sortedNumbers)) {
-                    // Automatically sort the numbers in ascending order
-                    selectedNumbers = sortedNumbers;
-                }
-                
-                // If '10' is selected, treat it as '0' when storing
-                let patti = selectedNumbers.join("");
-                let pattiToStore = patti.replace("10", "0");  // Replace '10' with '0' for storage
-                storedPattis.push(pattiToStore);
-                updateStoreArea();
-                
-                selectedNumbers = []; // Reset selection after 3 clicks
-            }
-        }
-
-        function updateStoreArea() {
-            document.getElementById("storeArea").textContent = "Stored Pattis: " + storedPattis.join(", ");
         }
 
         function toggleCP() {
@@ -144,32 +108,50 @@
             isCPSelected = !isCPSelected;
             if (isCPSelected) {
                 cpButton.classList.add("selected");
+                document.getElementById("cpPattiArea").style.display = "block";
             } else {
                 cpButton.classList.remove("selected");
+                document.getElementById("cpPattiArea").style.display = "none";
             }
         }
 
-        function calculateTotal() {
-            let amountPerPatti = parseInt(document.getElementById("amountInput").value) || 10;
-            let totalAmount = storedPattis.length * amountPerPatti;
-            
-            alert(`Total Amount: ₹${totalAmount}`);
-            
-            // Flash message
-            alert("Pattis submitted successfully!");
+        function calculateCombinations() {
+            if (selectedNumbers.length >= 4) {
+                let combinationCount = 0;
 
-            // Clear stored Pattis after submission
-            storedPattis = [];
-            updateStoreArea();
-        }
+                // Calculate the number of combinations based on selected digits
+                let n = selectedNumbers.length;
+                combinationCount = factorial(n) / (factorial(4) * factorial(n - 4));  // For 4-number combinations
 
-        function clearLastPatti() {
-            if (storedPattis.length > 0) {
-                storedPattis.pop(); // Remove the last Patti
-                updateStoreArea(); // Update the stored Pattis area
+                if (n > 4) {
+                    combinationCount = factorial(n) / (factorial(5) * factorial(n - 5)); // 5-number combinations
+                }
+                if (n > 5) {
+                    combinationCount = factorial(n) / (factorial(6) * factorial(n - 6)); // 6-number combinations
+                }
+                if (n > 6) {
+                    combinationCount = factorial(n) / (factorial(7) * factorial(n - 7)); // 7-number combinations
+                }
+                if (n > 7) {
+                    combinationCount = factorial(n) / (factorial(8) * factorial(n - 8)); // 8-number combinations
+                }
+
+                // Display the calculated combinations
+                document.getElementById("pattiCombinations").textContent = `Combinations: ${combinationCount}`;
+                alert(`Total Patti: ${combinationCount}`);
             } else {
-                alert("No Patti to clear!");
+                alert("Please select at least 4 numbers.");
             }
+        }
+
+        // Factorial calculation function for combination formula
+        function factorial(num) {
+            if (num === 0) return 1;
+            let result = 1;
+            for (let i = 1; i <= num; i++) {
+                result *= i;
+            }
+            return result;
         }
     </script>
 
