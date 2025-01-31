@@ -20,6 +20,7 @@
             cursor: pointer;
             font-weight: bold; /* Bold for better visibility */
             background-color: #f0f0f0; /* Solid box construction */
+            user-select: none; /* Prevent text selection for better UX */
         }
         .box:hover {
             background-color: #e0e0e0; /* Highlight on hover */
@@ -116,15 +117,17 @@
             if (selectedNumbers.length === 3) {
                 let sortedNumbers = [...selectedNumbers].sort((a, b) => a - b);
                 
-                if (JSON.stringify(selectedNumbers) === JSON.stringify(sortedNumbers)) {
-                    // If '10' is selected, treat it as '0' when storing
-                    let patti = selectedNumbers.join("");
-                    let pattiToStore = patti.replace("10", "0");  // Replace '10' with '0' for storage
-                    storedPattis.push(pattiToStore);
-                    updateStoreArea();
-                } else {
-                    alert("Invalid Patti! Numbers should be in ascending order.");
+                // Store the numbers in ascending order
+                if (JSON.stringify(selectedNumbers) !== JSON.stringify(sortedNumbers)) {
+                    // Automatically sort the numbers in ascending order
+                    selectedNumbers = sortedNumbers;
                 }
+                
+                // If '10' is selected, treat it as '0' when storing
+                let patti = selectedNumbers.join("");
+                let pattiToStore = patti.replace("10", "0");  // Replace '10' with '0' for storage
+                storedPattis.push(pattiToStore);
+                updateStoreArea();
                 
                 selectedNumbers = []; // Reset selection after 3 clicks
             }
