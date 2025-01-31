@@ -7,15 +7,15 @@
 </head>
 <body>
 
-    <h2>Click the Button to See Changes</h2>
-    <button id="myButton" onclick="buttonClicked()">Click Me</button>
+    <h2>Click the Patti Button to See Changes</h2>
+    <button id="pattiButton" onclick="buttonClicked()">Patti</button>
     <div id="result"></div>
 
     <script>
         function buttonClicked() {
-            var button = document.getElementById("myButton");
+            var button = document.getElementById("pattiButton");
             button.textContent = "Clicked!";  // Change button text
-            alert("Button Patti Performing actions..."); // Show alert
+            alert("Patti Button Clicked! Performing actions..."); // Show alert
             
             var newPara = document.createElement("p"); // Create a new paragraph
             newPara.textContent = "New paragraph added below the button.";
