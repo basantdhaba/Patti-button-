@@ -24,9 +24,10 @@
         .box:hover {
             background-color: #e0e0e0; /* Highlight on hover */
         }
-        #cpButton {
+        #cpButton, #cpOkButton {
             padding: 10px;
-            background-color: lightgray;
+            background-color: blue; /* Blue button color */
+            color: white;
             border: 1px solid black;
             cursor: pointer;
             text-align: center;
@@ -34,17 +35,20 @@
         }
         #cpButton.selected {
             background-color: #4CAF50; /* Green when selected */
-            color: white;
         }
         #storeArea {
             display: none;
             margin-top: 10px;
             font-weight: bold;
         }
+        #amountSection {
+            display: none;
+            margin-top: 10px;
+        }
         #amountInput {
             width: 60px;
         }
-        #submitButton, #clearButton, #cpOkButton {
+        #submitButton, #clearButton {
             padding: 10px;
             background-color: lightgray;
             border: 1px solid black;
@@ -151,13 +155,11 @@
             let combinations = [];
             let n = arr.length;
 
-            // Generate combinations of 4 or more numbers
+            // Generate combinations of 3 digits from selected numbers
             for (let i = 0; i < n; i++) {
                 for (let j = i + 1; j < n; j++) {
                     for (let k = j + 1; k < n; k++) {
-                        for (let l = k + 1; l < n; l++) {
-                            combinations.push([arr[i], arr[j], arr[k], arr[l]].join(''));
-                        }
+                        combinations.push([arr[i], arr[j], arr[k]].join(''));
                     }
                 }
             }
