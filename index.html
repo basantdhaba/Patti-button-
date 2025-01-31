@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Action</title>
+</head>
+<body>
+
+    <h2>Click the Button to See Changes</h2>
+    <button id="myButton" onclick="buttonClicked()">Click Me</button>
+    <div id="result"></div>
+
+    <script>
+        function buttonClicked() {
+            var button = document.getElementById("myButton");
+            button.textContent = "Clicked!";  // Change button text
+            alert("Button Clicked! Performing actions..."); // Show alert
+            
+            var newPara = document.createElement("p"); // Create a new paragraph
+            newPara.textContent = "New paragraph added below the button.";
+            document.getElementById("result").appendChild(newPara);
+        }
+    </script>
+
+</body>
+</html>
