@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Patti Selection</title>
   <style>
-    /* Prevent text selection for the number boxes (improves mobile experience) */
+    /* Prevent text selection for number boxes on mobile devices */
     .box {
       user-select: none;
       -webkit-user-select: none;
@@ -61,10 +61,9 @@
   <!-- Container for number boxes -->
   <div id="boxContainer"></div>
   
-  <!-- CP mode buttons -->
+  <!-- CP mode button and CP OK button -->
   <div id="cpButton" onclick="toggleCP()">CP</div>
-  <!-- CP OK button: calls the new handler function -->
-  <div id="cpOkButton" onclick="cpOkHandler()">CP OK</div>
+  <div id="cpOkButton" onclick="cpOkButton()">CP OK</div>
   
   <!-- Area to display stored pattis -->
   <div id="storeArea">Stored Pattis: </div>
@@ -78,14 +77,14 @@
   <div id="clearButton" onclick="clearLastPatti()">Clear Last Patti</div>
   
   <script>
-    // Arrays to store selections and final pattis
-    let selectedNumbers = [];   // For normal mode (expects exactly 3 numbers in ascending order)
-    let cpSelectedNumbers = []; // For CP mode (user can select any numbers in any order)
-    let storedPattis = [];      // Final stored pattis (each entry is a 3-digit string)
+    // Arrays for selections and final pattis
+    let selectedNumbers = [];      // Used in normal mode (exactly 3 numbers)
+    let cpSelectedNumbers = [];    // Used in CP mode (numbers in any order)
+    let storedPattis = [];         // Final stored pattis (each a 3-digit string)
     
-    let isCPMode = false; // flag for CP mode
+    let isCPMode = false; // Flag for CP mode
     
-    // Show number boxes and other elements
+    // Show number boxes and other UI elements
     function showBoxes() {
       const boxContainer = document.getElementById("boxContainer");
       const cpButton = document.getElementById("cpButton");
@@ -95,7 +94,7 @@
       const clearButton = document.getElementById("clearButton");
       const storeArea = document.getElementById("storeArea");
       
-      boxContainer.innerHTML = ""; // clear previous boxes
+      boxContainer.innerHTML = ""; // Clear previous boxes
       
       // Create boxes for numbers 1 to 9
       for (let i = 1; i <= 9; i++) {
@@ -105,17 +104,16 @@
         box.onclick = function() { numberClicked(i); };
         boxContainer.appendChild(box);
       }
-      // Create 10th box shown as "0" but internally represents 10
+      // Create 10th box: shown as "0" but treated as 10 internally
       let boxZero = document.createElement("div");
       boxZero.className = "box";
       boxZero.textContent = "0";
-      // In normal mode, if user clicks this box, we pass 10; for display, 10 will be shown as 0.
       boxZero.onclick = function() { numberClicked(10); };
       boxContainer.appendChild(boxZero);
       
       boxContainer.style.display = "block";
       cpButton.style.display = "block";
-      cpOkButton.style.display = "none";  // Hidden until CP mode is activated
+      cpOkButton.style.display = "none"; // initially hidden
       amountSection.style.display = "block";
       submitButton.style.display = "block";
       clearButton.style.display = "block";
@@ -125,39 +123,37 @@
     // Called when a number box is clicked
     function numberClicked(num) {
       if (isCPMode) {
-        // In CP mode, allow the user to select numbers in any order (no duplicates)
+        // In CP mode, add number if not already selected
         if (!cpSelectedNumbers.includes(num)) {
           cpSelectedNumbers.push(num);
+          updateStoreAreaForCP();
         }
-        updateStoreAreaForCP();
       } else {
-        // Normal mode: user selects exactly 3 numbers (must be in ascending order)
+        // In normal mode: user selects exactly 3 numbers in ascending order
         if (selectedNumbers.length < 3) {
           selectedNumbers.push(num);
         }
         if (selectedNumbers.length === 3) {
-          // Check if numbers are in ascending order
           let sorted = [...selectedNumbers].sort((a, b) => a - b);
           if (JSON.stringify(selectedNumbers) === JSON.stringify(sorted)) {
             let patti = selectedNumbers.join("");
-            // Replace "10" with "0" for display purposes
             let pattiDisplay = patti.replace("10", "0");
             storedPattis.push(pattiDisplay);
             updateStoreArea();
           } else {
             alert("Invalid Patti! Numbers should be in ascending order.");
           }
-          selectedNumbers = []; // Reset for next attempt
+          selectedNumbers = [];
         }
       }
     }
     
-    // Update the stored area for normal mode pattis
+    // Update stored area for normal mode pattis
     function updateStoreArea() {
       document.getElementById("storeArea").textContent = "Stored Pattis: " + storedPattis.join(", ");
     }
     
-    // Update the store area for CP mode selections (temporary display)
+    // Update display when in CP mode (show current CP selections)
     function updateStoreAreaForCP() {
       document.getElementById("storeArea").textContent = "CP Selected Numbers: " + cpSelectedNumbers.join(", ");
     }
@@ -169,8 +165,8 @@
       isCPMode = !isCPMode;
       if (isCPMode) {
         cpButton.classList.add("selected");
-        cpOkButton.style.display = "block";  // Show the CP OK button in CP mode
-        cpSelectedNumbers = []; // Clear any previous CP selections
+        cpOkButton.style.display = "block";
+        cpSelectedNumbers = [];
         updateStoreAreaForCP();
       } else {
         cpButton.classList.remove("selected");
@@ -180,36 +176,31 @@
       }
     }
     
-    // When CP OK is pressed, generate all unique 3-digit combinations from cpSelectedNumbers
-    function cpOkHandler() {
+    // CP OK button: generate all unique 3-digit combinations from CP-selected numbers
+    function cpOkButton() {
       if (cpSelectedNumbers.length < 3) {
         alert("Select at least 3 numbers in CP mode.");
         return;
       }
       let combinations = generateUniqueCombinations(cpSelectedNumbers);
-      // Append each generated combination to storedPattis (avoid duplicates)
-      combinations.forEach(combo => {
-        if (!storedPattis.includes(combo)) {
-          storedPattis.push(combo);
-        }
-      });
+      // Instead of appending, replace stored pattis with the CP-generated pattis.
+      storedPattis = combinations;
       updateStoreArea();
       // Clear CP selection after generating combinations
       cpSelectedNumbers = [];
       updateStoreAreaForCP();
     }
     
-    // Generate unique 3-digit combinations from an array of numbers.
-    // Each combination is sorted in ascending order and, for display, "10" is shown as "0".
+    // Generate unique 3-digit combinations (each sorted in ascending order) from an array of numbers.
     function generateUniqueCombinations(numbers) {
       let combos = [];
       let n = numbers.length;
-      // Generate all combinations of 3 distinct numbers
       for (let i = 0; i < n - 2; i++) {
         for (let j = i + 1; j < n - 1; j++) {
           for (let k = j + 1; k < n; k++) {
             let arr = [numbers[i], numbers[j], numbers[k]].sort((a, b) => a - b);
             let combo = arr.join("");
+            // For display, convert internal 10 to "0"
             let comboDisplay = combo.replace("10", "0");
             if (!combos.includes(comboDisplay)) {
               combos.push(comboDisplay);
@@ -220,7 +211,7 @@
       return combos;
     }
     
-    // Calculate the total amount based on stored pattis and the entered amount
+    // Calculate total amount based on stored pattis and entered amount
     function calculateTotal() {
       const amountPerPatti = parseInt(document.getElementById("amountInput").value) || 10;
       const totalAmount = storedPattis.length * amountPerPatti;
@@ -231,7 +222,7 @@
       updateStoreArea();
     }
     
-    // Clear the last stored patti from storedPattis array
+    // Clear the last stored patti (removes the last entry)
     function clearLastPatti() {
       if (storedPattis.length > 0) {
         storedPattis.pop();
