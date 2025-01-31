@@ -5,10 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patti Selection</title>
     <style>
+        /* Prevent text selection on mobile devices */
+        .box, .boxContainer, .boxContainer div {
+            user-select: none; /* Disable text selection */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
         #boxContainer, #cpButton, #amountSection, #submitButton, #clearButton {
             display: none; /* Hidden initially */
             margin-top: 10px;
         }
+
         .box {
             width: 50px;
             height: 50px;
@@ -21,9 +30,11 @@
             font-weight: bold; /* Bold for better visibility */
             background-color: #f0f0f0; /* Solid box construction */
         }
+
         .box:hover {
             background-color: #e0e0e0; /* Highlight on hover */
         }
+
         #cpButton {
             padding: 10px;
             background-color: lightgray;
@@ -32,18 +43,22 @@
             text-align: center;
             margin-top: 10px;
         }
+
         #cpButton.selected {
             background-color: #4CAF50; /* Green when selected */
             color: white;
         }
+
         #storeArea {
             display: none;
             margin-top: 10px;
             font-weight: bold;
         }
+
         #amountInput {
             width: 60px;
         }
+
         #submitButton, #clearButton {
             padding: 10px;
             background-color: lightgray;
