@@ -97,7 +97,7 @@
             let boxZero = document.createElement("div");
             boxZero.className = "box";
             boxZero.textContent = "0";  // Show 0, treat as 10 internally
-            boxZero.onclick = function() { selectNumber(0); }; // Treat 0 as 10 internally
+            boxZero.onclick = function() { selectNumber(10); }; // Treat 0 as 10 internally
             boxContainer.appendChild(boxZero);
 
             boxContainer.style.display = "block";
@@ -110,11 +110,48 @@
 
         function selectNumber(num) {
             if (isCPSelected) {
-                // Allow any order of numbers after CP selection
-                if (!selectedNumbers.includes(num)) {
+                // Add number to selected list only if CP is selected
+                selectedNumbers.push(num);
+
+                // Generate combinations when 4 or more numbers are selected
+                if (selectedNumbers.length >= 4) {
+                    let combinations = generateCombinations(selectedNumbers);
+                    storedPattis = storedPattis.concat(combinations);
+                    updateStoreArea();
+                }
+            } else {
+                // Validate if number sequence is in ascending order when not using CP
+                if (selectedNumbers.length < 3) {
                     selectedNumbers.push(num);
                 }
+
+                if (selectedNumbers.length === 3) {
+                    let sortedNumbers = [...selectedNumbers].sort((a, b) => a - b);
+                    
+                    if (JSON.stringify(selectedNumbers) === JSON.stringify(sortedNumbers)) {
+                        let patti = selectedNumbers.join("");
+                        let pattiToStore = patti.replace("10", "0");  // Replace '10' with '0' for storage
+                        storedPattis.push(pattiToStore);
+                        updateStoreArea();
+                    } else {
+                        alert("Invalid Patti! Numbers should be in ascending order.");
+                    }
+
+                    selectedNumbers = []; // Reset selection after 3 clicks
+                }
             }
+        }
+
+        function generateCombinations(numbers) {
+            let combinations = [];
+            for (let i = 0; i < numbers.length; i++) {
+                for (let j = i + 1; j < numbers.length; j++) {
+                    for (let k = j + 1; k < numbers.length; k++) {
+                        combinations.push(`${numbers[i]}${numbers[j]}${numbers[k]}`);
+                    }
+                }
+            }
+            return combinations;
         }
 
         function updateStoreArea() {
@@ -133,38 +170,18 @@
             }
         }
 
-        function generateCombinations(numbers) {
-            let combinations = [];
-            for (let i = 0; i < numbers.length - 2; i++) {
-                for (let j = i + 1; j < numbers.length - 1; j++) {
-                    for (let k = j + 1; k < numbers.length; k++) {
-                        let combo = [numbers[i], numbers[j], numbers[k]].sort((a, b) => a - b).join("");  // Sort to ensure combinations are stored in ascending order
-                        combinations.push(combo);
-                    }
-                }
-            }
-            return combinations;
-        }
-
         function calculateTotal() {
-            if (selectedNumbers.length >= 3) {
-                // Generate 3-digit combinations from selected numbers
-                let combinations = generateCombinations(selectedNumbers);
-                storedPattis = combinations;  // Store the generated combinations
-                updateStoreArea();
-                
-                let amountPerPatti = parseInt(document.getElementById("amountInput").value) || 10;
-                let totalAmount = storedPattis.length * amountPerPatti;
+            let amountPerPatti = parseInt(document.getElementById("amountInput").value) || 10;
+            let totalAmount = storedPattis.length * amountPerPatti;
+            
+            alert(`Total Amount: ₹${totalAmount}`);
+            
+            // Flash message
+            alert("Pattis submitted successfully!");
 
-                alert(`Total Amount: ₹${totalAmount}`);
-                alert("Pattis submitted successfully!");
-
-                // Clear stored Pattis after submission
-                storedPattis = [];
-                updateStoreArea();
-            } else {
-                alert("Please select at least 3 numbers to create combinations.");
-            }
+            // Clear stored Pattis after submission
+            storedPattis = [];
+            updateStoreArea();
         }
 
         function clearLastPatti() {
