@@ -13,18 +13,28 @@
             width: 50px;
             height: 50px;
             display: inline-block;
-            border: 1px solid black;
+            border: 2px solid black;
             text-align: center;
             line-height: 50px;
             margin: 5px;
             cursor: pointer;
+            font-weight: bold; /* Bold for better visibility */
+            background-color: #f0f0f0; /* Solid box construction */
         }
-        #cpButton, #submitButton, #clearButton {
+        .box:hover {
+            background-color: #e0e0e0; /* Highlight on hover */
+        }
+        #cpButton {
             padding: 10px;
             background-color: lightgray;
             border: 1px solid black;
             cursor: pointer;
             text-align: center;
+            margin-top: 10px;
+        }
+        #cpButton.selected {
+            background-color: #4CAF50; /* Green when selected */
+            color: white;
         }
         #storeArea {
             display: none;
@@ -33,6 +43,14 @@
         }
         #amountInput {
             width: 60px;
+        }
+        #submitButton, #clearButton {
+            padding: 10px;
+            background-color: lightgray;
+            border: 1px solid black;
+            cursor: pointer;
+            text-align: center;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -43,7 +61,7 @@
     
     <div id="boxContainer"></div>
     
-    <div id="cpButton" onclick="resetSelection()">CP</div>
+    <div id="cpButton" onclick="toggleCP()">CP</div>
     <div id="storeArea">Stored Pattis: </div>
 
     <div id="amountSection">
@@ -57,6 +75,7 @@
     <script>
         let selectedNumbers = [];
         let storedPattis = [];
+        let isCPSelected = false;  // Track CP button selection
 
         function showBoxes() {
             let boxContainer = document.getElementById("boxContainer");
@@ -115,8 +134,16 @@
             document.getElementById("storeArea").textContent = "Stored Pattis: " + storedPattis.join(", ");
         }
 
-        function resetSelection() {
-            selectedNumbers = [];
+        function toggleCP() {
+            let cpButton = document.getElementById("cpButton");
+
+            // Toggle CP button style
+            isCPSelected = !isCPSelected;
+            if (isCPSelected) {
+                cpButton.classList.add("selected");
+            } else {
+                cpButton.classList.remove("selected");
+            }
         }
 
         function calculateTotal() {
@@ -124,6 +151,13 @@
             let totalAmount = storedPattis.length * amountPerPatti;
             
             alert(`Total Amount: ₹${totalAmount}`);
+            
+            // Flash message
+            alert("Pattis submitted successfully!");
+
+            // Clear stored Pattis after submission
+            storedPattis = [];
+            updateStoreArea();
         }
 
         function clearLastPatti() {
