@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patti Selection</title>
     <style>
-        #boxContainer, #cpButton, #amountSection, #submitButton {
+        #boxContainer, #cpButton, #amountSection, #submitButton, #clearButton {
             display: none; /* Hidden initially */
             margin-top: 10px;
         }
@@ -19,7 +19,7 @@
             margin: 5px;
             cursor: pointer;
         }
-        #cpButton, #submitButton {
+        #cpButton, #submitButton, #clearButton {
             padding: 10px;
             background-color: lightgray;
             border: 1px solid black;
@@ -30,6 +30,9 @@
             display: none;
             margin-top: 10px;
             font-weight: bold;
+        }
+        #amountInput {
+            width: 60px;
         }
     </style>
 </head>
@@ -45,10 +48,11 @@
 
     <div id="amountSection">
         <label>Enter Amount per Patti (₹): </label>
-        <input type="number" id="amountInput" min="1" value="10">
+        <input type="number" id="amountInput" min="1" value="0" />
     </div>
 
     <div id="submitButton" onclick="calculateTotal()">Submit</div>
+    <div id="clearButton" onclick="clearLastPatti()">Clear Last Patti</div>
 
     <script>
         let selectedNumbers = [];
@@ -59,13 +63,14 @@
             let cpButton = document.getElementById("cpButton");
             let amountSection = document.getElementById("amountSection");
             let submitButton = document.getElementById("submitButton");
+            let clearButton = document.getElementById("clearButton");
 
             boxContainer.innerHTML = ""; // Clear previous boxes
             for (let i = 1; i <= 10; i++) {
                 let box = document.createElement("div");
                 box.className = "box";
-                box.textContent = i;
-                box.onclick = function() { selectNumber(i); };
+                box.textContent = "0";  // Display "0" but will work internally as 1 to 10
+                box.onclick = function() { selectNumber(i); }; // Buttons will work as 1 to 10 internally
                 boxContainer.appendChild(box);
             }
 
@@ -74,6 +79,7 @@
             document.getElementById("storeArea").style.display = "block";
             amountSection.style.display = "block";
             submitButton.style.display = "block";
+            clearButton.style.display = "block";
         }
 
         function selectNumber(num) {
@@ -108,6 +114,15 @@
             let totalAmount = storedPattis.length * amountPerPatti;
             
             alert(`Total Amount: ₹${totalAmount}`);
+        }
+
+        function clearLastPatti() {
+            if (storedPattis.length > 0) {
+                storedPattis.pop(); // Remove the last Patti
+                updateStoreArea(); // Update the stored Pattis area
+            } else {
+                alert("No Patti to clear!");
+            }
         }
     </script>
 
