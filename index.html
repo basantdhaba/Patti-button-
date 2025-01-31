@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patti Selection</title>
     <style>
-        #boxContainer, #cpButton, #cpOkButton, #amountSection, #submitButton, #clearButton {
+        #boxContainer, #cpButton, #amountSection, #submitButton, #clearButton {
             display: none; /* Hidden initially */
             margin-top: 10px;
         }
@@ -24,27 +24,22 @@
         .box:hover {
             background-color: #e0e0e0; /* Highlight on hover */
         }
-        .selected {
-            background-color: blue; /* Selected box color */
-            color: white;
-        }
-        #cpButton, #cpOkButton {
+        #cpButton {
             padding: 10px;
-            background-color: blue; /* Blue button color */
-            color: white;
+            background-color: lightgray;
             border: 1px solid black;
             cursor: pointer;
             text-align: center;
             margin-top: 10px;
         }
+        #cpButton.selected {
+            background-color: #4CAF50; /* Green when selected */
+            color: white;
+        }
         #storeArea {
             display: none;
             margin-top: 10px;
             font-weight: bold;
-        }
-        #amountSection {
-            display: none;
-            margin-top: 10px;
         }
         #amountInput {
             width: 60px;
@@ -67,8 +62,6 @@
     <div id="boxContainer"></div>
     
     <div id="cpButton" onclick="toggleCP()">CP</div>
-    <div id="cpOkButton" onclick="processCP()">CP OK</div>
-
     <div id="storeArea">Stored Pattis: </div>
 
     <div id="amountSection">
@@ -87,7 +80,6 @@
         function showBoxes() {
             let boxContainer = document.getElementById("boxContainer");
             let cpButton = document.getElementById("cpButton");
-            let cpOkButton = document.getElementById("cpOkButton");
             let amountSection = document.getElementById("amountSection");
             let submitButton = document.getElementById("submitButton");
             let clearButton = document.getElementById("clearButton");
@@ -105,12 +97,11 @@
             let boxZero = document.createElement("div");
             boxZero.className = "box";
             boxZero.textContent = "0";  // Show 0, treat as 10 internally
-            boxZero.onclick = function() { selectNumber(10); }; // Treat 0 as 10 internally
+            boxZero.onclick = function() { selectNumber(0); }; // Treat 0 as 10 internally
             boxContainer.appendChild(boxZero);
 
             boxContainer.style.display = "block";
             cpButton.style.display = "block";
-            cpOkButton.style.display = "block";  // Show CP OK button
             document.getElementById("storeArea").style.display = "block";
             amountSection.style.display = "block";
             submitButton.style.display = "block";
@@ -119,29 +110,15 @@
 
         function selectNumber(num) {
             if (isCPSelected) {
-                if (selectedNumbers.length < 8) {
+                // Allow any order of numbers after CP selection
+                if (!selectedNumbers.includes(num)) {
                     selectedNumbers.push(num);
-                    updateStoreArea();  // Update store area with selected numbers
-                }
-            } else {
-                // If CP is not selected, allow selection of exactly 3 numbers in ascending order
-                if (selectedNumbers.length < 3) {
-                    selectedNumbers.push(num);
-                    if (selectedNumbers.length === 3) {
-                        selectedNumbers.sort((a, b) => a - b); // Sort to check ascending order
-                        if (selectedNumbers[0] < selectedNumbers[1] && selectedNumbers[1] < selectedNumbers[2]) {
-                            updateStoreArea();  // Valid combination, update stored area
-                        } else {
-                            alert("Invalid combination! Please select numbers in ascending order.");
-                            selectedNumbers = [];  // Reset if invalid
-                        }
-                    }
                 }
             }
         }
 
         function updateStoreArea() {
-            document.getElementById("storeArea").textContent = "Stored Pattis: " + selectedNumbers.join(" , ");
+            document.getElementById("storeArea").textContent = "Stored Pattis: " + storedPattis.join(", ");
         }
 
         function toggleCP() {
@@ -156,46 +133,38 @@
             }
         }
 
-        function processCP() {
-            if (selectedNumbers.length >= 4) {
-                let sortedNumbers = [...selectedNumbers].sort((a, b) => a - b);
-                let combinations = generateCombinations(sortedNumbers);
-                storedPattis = storedPattis.concat(combinations);
-                updateStoreArea();
-                alert("Combinations stored successfully!");
-            } else {
-                alert("Please select at least 4 numbers!");
-            }
-        }
-
-        function generateCombinations(arr) {
+        function generateCombinations(numbers) {
             let combinations = [];
-            let n = arr.length;
-
-            // Generate combinations of 3 digits from selected numbers
-            for (let i = 0; i < n; i++) {
-                for (let j = i + 1; j < n; j++) {
-                    for (let k = j + 1; k < n; k++) {
-                        combinations.push([arr[i], arr[j], arr[k]].join(''));
+            for (let i = 0; i < numbers.length - 2; i++) {
+                for (let j = i + 1; j < numbers.length - 1; j++) {
+                    for (let k = j + 1; k < numbers.length; k++) {
+                        let combo = [numbers[i], numbers[j], numbers[k]].sort((a, b) => a - b).join("");  // Sort to ensure combinations are stored in ascending order
+                        combinations.push(combo);
                     }
                 }
             }
-
             return combinations;
         }
 
         function calculateTotal() {
-            let amountPerPatti = parseInt(document.getElementById("amountInput").value) || 10;
-            let totalAmount = storedPattis.length * amountPerPatti;
-            
-            alert(`Total Amount: ₹${totalAmount}`);
-            
-            // Flash message
-            alert("Pattis submitted successfully!");
+            if (selectedNumbers.length >= 3) {
+                // Generate 3-digit combinations from selected numbers
+                let combinations = generateCombinations(selectedNumbers);
+                storedPattis = combinations;  // Store the generated combinations
+                updateStoreArea();
+                
+                let amountPerPatti = parseInt(document.getElementById("amountInput").value) || 10;
+                let totalAmount = storedPattis.length * amountPerPatti;
 
-            // Clear stored Pattis after submission
-            storedPattis = [];
-            updateStoreArea();
+                alert(`Total Amount: ₹${totalAmount}`);
+                alert("Pattis submitted successfully!");
+
+                // Clear stored Pattis after submission
+                storedPattis = [];
+                updateStoreArea();
+            } else {
+                alert("Please select at least 3 numbers to create combinations.");
+            }
         }
 
         function clearLastPatti() {
