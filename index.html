@@ -5,10 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patti Selection</title>
     <style>
-        #boxContainer, #cpButton, #amountSection, #submitButton, #clearButton {
-            display: none; /* Hidden initially */
-            margin-top: 10px;
+        body {
+            font-family: Arial, sans-serif;
         }
+
+        #boxContainer {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
         .box {
             width: 50px;
             height: 50px;
@@ -16,14 +23,21 @@
             border: 2px solid black;
             text-align: center;
             line-height: 50px;
-            margin: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #f0f0f0;
             cursor: pointer;
-            font-weight: bold; /* Bold for better visibility */
-            background-color: #f0f0f0; /* Solid box construction */
+            transition: background-color 0.3s;
         }
+
         .box:hover {
-            background-color: #e0e0e0; /* Highlight on hover */
+            background-color: #e0e0e0;
         }
+
+        .box:active {
+            background-color: #d0d0d0;
+        }
+
         #cpButton {
             padding: 10px;
             background-color: lightgray;
@@ -32,18 +46,21 @@
             text-align: center;
             margin-top: 10px;
         }
+
         #cpButton.selected {
-            background-color: #4CAF50; /* Green when selected */
+            background-color: #4CAF50;
             color: white;
         }
+
         #storeArea {
-            display: none;
-            margin-top: 10px;
+            margin-top: 20px;
             font-weight: bold;
         }
-        #amountInput {
-            width: 60px;
+
+        #amountSection {
+            margin-top: 10px;
         }
+
         #submitButton, #clearButton {
             padding: 10px;
             background-color: lightgray;
@@ -52,6 +69,10 @@
             text-align: center;
             margin-top: 10px;
         }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -59,68 +80,63 @@
     <h2>Click the Patti Button to Start</h2>
     <button id="pattiButton" onclick="showBoxes()">Patti</button>
     
-    <div id="boxContainer"></div>
+    <div id="boxContainer" class="hidden"></div>
     
     <div id="cpButton" onclick="toggleCP()">CP</div>
-    <div id="storeArea">Stored Pattis: </div>
+    
+    <div id="storeArea" class="hidden">Stored Pattis: </div>
 
-    <div id="amountSection">
+    <div id="amountSection" class="hidden">
         <label>Enter Amount per Patti (₹): </label>
         <input type="number" id="amountInput" min="1" value="0" />
     </div>
 
-    <div id="submitButton" onclick="calculateTotal()">Submit</div>
-    <div id="clearButton" onclick="clearLastPatti()">Clear Last Patti</div>
+    <div id="submitButton" class="hidden" onclick="calculateTotal()">Submit</div>
+    <div id="clearButton" class="hidden" onclick="clearLastPatti()">Clear Last Patti</div>
 
     <script>
         let selectedNumbers = [];
         let storedPattis = [];
-        let isCPSelected = false;  // Track CP button selection
+        let isCPSelected = false;
 
         function showBoxes() {
             let boxContainer = document.getElementById("boxContainer");
-            let cpButton = document.getElementById("cpButton");
-            let amountSection = document.getElementById("amountSection");
-            let submitButton = document.getElementById("submitButton");
-            let clearButton = document.getElementById("clearButton");
-
             boxContainer.innerHTML = ""; // Clear previous boxes
+
+            // Generate number boxes 1-9
             for (let i = 1; i <= 9; i++) {
                 let box = document.createElement("div");
                 box.className = "box";
-                box.textContent = i;  // Show numbers 1 to 9
-                box.onclick = function() { selectNumber(i); }; // Internal number 1 to 9
+                box.textContent = i;
+                box.onclick = function() { selectNumber(i); };
                 boxContainer.appendChild(box);
             }
 
-            // Create the 10th box as '0', but treat it as '10' for internal logic, but show '0'
+            // Add 0 box
             let boxZero = document.createElement("div");
             boxZero.className = "box";
-            boxZero.textContent = "0";  // Show 0, treat as 10 internally
-            boxZero.onclick = function() { selectNumber(10); }; // Treat 0 as 10 internally
+            boxZero.textContent = "0";
+            boxZero.onclick = function() { selectNumber(0); };
             boxContainer.appendChild(boxZero);
 
-            boxContainer.style.display = "block";
-            cpButton.style.display = "block";
-            document.getElementById("storeArea").style.display = "block";
-            amountSection.style.display = "block";
-            submitButton.style.display = "block";
-            clearButton.style.display = "block";
+            // Show all relevant sections
+            document.getElementById("boxContainer").classList.remove("hidden");
+            document.getElementById("cpButton").classList.remove("hidden");
+            document.getElementById("storeArea").classList.remove("hidden");
+            document.getElementById("amountSection").classList.remove("hidden");
+            document.getElementById("submitButton").classList.remove("hidden");
+            document.getElementById("clearButton").classList.remove("hidden");
         }
 
         function selectNumber(num) {
             if (isCPSelected) {
-                // Add number to selected list only if CP is selected
-                selectedNumbers.push(num);
-
-                // Generate combinations when 4 or more numbers are selected
-                if (selectedNumbers.length >= 4) {
-                    let combinations = generateCombinations(selectedNumbers);
-                    storedPattis = storedPattis.concat(combinations);
+                // If CP is selected, add numbers to the selected list
+                if (!selectedNumbers.includes(num)) {
+                    selectedNumbers.push(num);
                     updateStoreArea();
                 }
             } else {
-                // Validate if number sequence is in ascending order when not using CP
+                // If CP is not selected, validate and store number
                 if (selectedNumbers.length < 3) {
                     selectedNumbers.push(num);
                 }
@@ -130,15 +146,29 @@
                     
                     if (JSON.stringify(selectedNumbers) === JSON.stringify(sortedNumbers)) {
                         let patti = selectedNumbers.join("");
-                        let pattiToStore = patti.replace("10", "0");  // Replace '10' with '0' for storage
-                        storedPattis.push(pattiToStore);
+                        storedPattis.push(patti);
                         updateStoreArea();
                     } else {
                         alert("Invalid Patti! Numbers should be in ascending order.");
                     }
 
-                    selectedNumbers = []; // Reset selection after 3 clicks
+                    selectedNumbers = []; // Reset after 3 numbers selected
                 }
+            }
+        }
+
+        function updateStoreArea() {
+            document.getElementById("storeArea").textContent = "Stored Pattis: " + storedPattis.join(", ");
+        }
+
+        function toggleCP() {
+            isCPSelected = !isCPSelected;
+            let cpButton = document.getElementById("cpButton");
+
+            if (isCPSelected) {
+                cpButton.classList.add("selected");
+            } else {
+                cpButton.classList.remove("selected");
             }
         }
 
@@ -154,32 +184,13 @@
             return combinations;
         }
 
-        function updateStoreArea() {
-            document.getElementById("storeArea").textContent = "Stored Pattis: " + storedPattis.join(", ");
-        }
-
-        function toggleCP() {
-            let cpButton = document.getElementById("cpButton");
-
-            // Toggle CP button style
-            isCPSelected = !isCPSelected;
-            if (isCPSelected) {
-                cpButton.classList.add("selected");
-            } else {
-                cpButton.classList.remove("selected");
-            }
-        }
-
         function calculateTotal() {
             let amountPerPatti = parseInt(document.getElementById("amountInput").value) || 10;
             let totalAmount = storedPattis.length * amountPerPatti;
-            
             alert(`Total Amount: ₹${totalAmount}`);
-            
-            // Flash message
             alert("Pattis submitted successfully!");
 
-            // Clear stored Pattis after submission
+            // Reset after submission
             storedPattis = [];
             updateStoreArea();
         }
@@ -191,6 +202,13 @@
             } else {
                 alert("No Patti to clear!");
             }
+        }
+
+        function constructPattisAfterCP() {
+            let combinations = generateCombinations(selectedNumbers);
+            storedPattis = storedPattis.concat(combinations);
+            selectedNumbers = []; // Clear numbers after combination
+            updateStoreArea();
         }
     </script>
 
