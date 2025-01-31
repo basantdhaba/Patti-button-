@@ -74,7 +74,7 @@
                 boxContainer.appendChild(box);
             }
 
-            // Create the 10th box as '0', but treat it as '10'
+            // Create the 10th box as '0', but treat it as '10' for internal logic, but show '0'
             let boxZero = document.createElement("div");
             boxZero.className = "box";
             boxZero.textContent = "0";  // Show 0, treat as 10 internally
@@ -98,9 +98,9 @@
                 let sortedNumbers = [...selectedNumbers].sort((a, b) => a - b);
                 
                 if (JSON.stringify(selectedNumbers) === JSON.stringify(sortedNumbers)) {
-                    // Remove the last digit of the Patti number (i.e., if 9810, store 980)
+                    // If '10' is selected, treat it as '0' when storing
                     let patti = selectedNumbers.join("");
-                    let pattiToStore = patti.length === 4 ? patti.slice(0, 3) : patti;
+                    let pattiToStore = patti.replace("10", "0");  // Replace '10' with '0' for storage
                     storedPattis.push(pattiToStore);
                     updateStoreArea();
                 } else {
