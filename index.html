@@ -66,13 +66,20 @@
             let clearButton = document.getElementById("clearButton");
 
             boxContainer.innerHTML = ""; // Clear previous boxes
-            for (let i = 1; i <= 10; i++) {
+            for (let i = 1; i <= 9; i++) {
                 let box = document.createElement("div");
                 box.className = "box";
-                box.textContent = "0";  // Display "0" but will work internally as 1 to 10
-                box.onclick = function() { selectNumber(i); }; // Buttons will work as 1 to 10 internally
+                box.textContent = i;  // Show numbers 1 to 9
+                box.onclick = function() { selectNumber(i); }; // Internal number 1 to 9
                 boxContainer.appendChild(box);
             }
+
+            // Create the 10th box as '0', but treat it as '10'
+            let boxZero = document.createElement("div");
+            boxZero.className = "box";
+            boxZero.textContent = "0";  // Show 0, treat as 10 internally
+            boxZero.onclick = function() { selectNumber(10); }; // Treat 0 as 10 internally
+            boxContainer.appendChild(boxZero);
 
             boxContainer.style.display = "block";
             cpButton.style.display = "block";
