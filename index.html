@@ -55,7 +55,7 @@
 </head>
 <body>
   <h2>Click the Patti Button to Start</h2>
-  <!-- Normal mode Patti button -->
+  <!-- Normal Mode Patti Button -->
   <button id="pattiButton" onclick="showBoxes()">Patti</button>
   
   <!-- Container for number boxes -->
@@ -63,7 +63,8 @@
   
   <!-- CP mode buttons -->
   <div id="cpButton" onclick="toggleCP()">CP</div>
-  <div id="cpOkButton" onclick="cpOkButton()">CP OK</div>
+  <!-- CP OK button: calls the new handler function -->
+  <div id="cpOkButton" onclick="cpOkHandler()">CP OK</div>
   
   <!-- Area to display stored pattis -->
   <div id="storeArea">Stored Pattis: </div>
@@ -108,13 +109,13 @@
       let boxZero = document.createElement("div");
       boxZero.className = "box";
       boxZero.textContent = "0";
-      // In normal mode, if user clicks this box, we pass 10; however, when stored it will show as "0".
+      // In normal mode, if user clicks this box, we pass 10; for display, 10 will be shown as 0.
       boxZero.onclick = function() { numberClicked(10); };
       boxContainer.appendChild(boxZero);
       
       boxContainer.style.display = "block";
       cpButton.style.display = "block";
-      cpOkButton.style.display = "none";  // Hidden until CP mode is active
+      cpOkButton.style.display = "none";  // Hidden until CP mode is activated
       amountSection.style.display = "block";
       submitButton.style.display = "block";
       clearButton.style.display = "block";
@@ -124,14 +125,13 @@
     // Called when a number box is clicked
     function numberClicked(num) {
       if (isCPMode) {
-        // In CP mode, allow the user to select numbers in any order
-        // Do not add duplicates
+        // In CP mode, allow the user to select numbers in any order (no duplicates)
         if (!cpSelectedNumbers.includes(num)) {
           cpSelectedNumbers.push(num);
         }
         updateStoreAreaForCP();
       } else {
-        // Normal mode: user selects exactly 3 numbers
+        // Normal mode: user selects exactly 3 numbers (must be in ascending order)
         if (selectedNumbers.length < 3) {
           selectedNumbers.push(num);
         }
@@ -147,7 +147,7 @@
           } else {
             alert("Invalid Patti! Numbers should be in ascending order.");
           }
-          selectedNumbers = []; // reset for next attempt
+          selectedNumbers = []; // Reset for next attempt
         }
       }
     }
@@ -157,7 +157,7 @@
       document.getElementById("storeArea").textContent = "Stored Pattis: " + storedPattis.join(", ");
     }
     
-    // Update the stored area for CP mode selections (temporary display)
+    // Update the store area for CP mode selections (temporary display)
     function updateStoreAreaForCP() {
       document.getElementById("storeArea").textContent = "CP Selected Numbers: " + cpSelectedNumbers.join(", ");
     }
@@ -181,7 +181,7 @@
     }
     
     // When CP OK is pressed, generate all unique 3-digit combinations from cpSelectedNumbers
-    function cpOkButton() {
+    function cpOkHandler() {
       if (cpSelectedNumbers.length < 3) {
         alert("Select at least 3 numbers in CP mode.");
         return;
@@ -200,11 +200,11 @@
     }
     
     // Generate unique 3-digit combinations from an array of numbers.
-    // Each combination is sorted in ascending order and displayed with "10" shown as "0".
+    // Each combination is sorted in ascending order and, for display, "10" is shown as "0".
     function generateUniqueCombinations(numbers) {
       let combos = [];
       let n = numbers.length;
-      // Three nested loops to generate combinations of 3 distinct numbers
+      // Generate all combinations of 3 distinct numbers
       for (let i = 0; i < n - 2; i++) {
         for (let j = i + 1; j < n - 1; j++) {
           for (let k = j + 1; k < n; k++) {
